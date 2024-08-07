@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dreamplay1 Cockfight Predictions</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom, #000428, #004e92);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-top: 20px;
+            color: #ffd700;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+        }
+        table {
+            width: 80%;
+            margin: 20px 0;
+            border-collapse: collapse;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            vertical-align: middle;
+            color: #fff;
+        }
+        th {
+            background-color: #222;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        select, input {
+            font-weight: bold;
+            padding: 10px;
+            font-size: 16px;
+            text-align: center;
+            background-color: #f5f5f5;
+            color: #333;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .btn {
+            margin: 10px;
+            padding: 12px 24px;
+            background-color: #ffd700;
+            color: #333;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 50px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .btn:hover {
+            background-color: #ffc107;
+            transform: translateY(-2px);
+        }
+        #totalProfitLoss {
+            font-size: 22px;
+            margin-top: 20px;
+            color: #ffd700;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+        }
+        .bet-on-meron {
+            background-color: red;
+            color: #fff;
+            font-weight: bold;
+        }
+        .bet-on-wala {
+            background-color: blue;
+            color: #fff;
+            font-weight: bold;
+        }
+        #controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 768px) {
+            table {
+                width: 100%;
+                font-size: 16px;
+            }
+            .btn {
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>
+    Dreamplay1 Cockfight Predictions
+</h1>
+
+<table id="predictionsTable">
+    <thead>
+        <tr>
+            <th>Fight Number</th>
+            <th>Bet on (Color)</th>
+            <th>Bet Amount</th>
+            <th>Result</th>
+            <th>Profit/Loss</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Dynamic Rows Will Be Added Here -->
+    </tbody>
+</table>
+
+<h2 id="totalProfitLoss">Total Profit/Loss: ₹0</h2>
+
+<div id="controls">
+    <button class="btn" onclick="addRow()">Add New Row</button>
+    <button class="btn" onclick="deleteRow()">Delete Last Row</button>
+    <button class="btn" onclick="calculateTotal()">Calculate Total Profit/Loss</button>
+</div>
+
+<script>
+    let fightNumber = 174;
+
+    function addRow() {
+        const table = document.getElementById('predictionsTable').getElementsByTagName('tbody')[0];
+        const newRow = table.insertRow();
+
+        const fightNumCell = newRow.insertCell(0);
+        const betOnCell = newRow.insertCell(1);
+        const betAmountCell = newRow.insertCell(2);
+        const resultCell = newRow.insertCell(3);
+        const profitLossCell = newRow.insertCell(4);
+
+        fightNumCell.innerHTML = `<input type="number" value="${fightNumber}" oninput="updateNextFightNumber(this)">`;
+        betOnCell.innerHTML = `
+            <select onchange="updateColor(this)">
+                <option value="" selected disabled>Select</option>
+                <option value="meron">MERON</option>
+                <option value="wala">WALA</option>
+            </select>
+        `;
+        betAmountCell.innerHTML = `<input type="number" value="500">`;
+        resultCell.innerHTML = `
+            <select onchange="updateProfitLoss(this)">
+                <option value="" selected disabled>Select</option>
+                <option value="win">WIN🏆</option>
+                <option value="lose">LOST😔</option>
+                <option value="draw">DRAW 🪢</option>
+                <option value="cancelled">CANCEL ❌</option>
+            </select>
+        `;
+        profitLossCell.innerHTML = `<input type="text" readonly>`;
+
+        fightNumber++;
+    }
+
+    function updateNextFightNumber(input) {
+        const row = input.closest('tr');
+        const table = document.getElementById('predictionsTable').getElementsByTagName('tbody')[0];
+        const rowIndex = row.rowIndex - 1;
+
+        let fightNum = parseInt(input.value);
+        fightNumber = fightNum + 1;
+
+        for (let i = rowIndex + 1; i < table.rows.length; i++) {
+            const nextRowInput = table.rows[i].cells[0].getElementsByTagName('input')[0];
+            nextRowInput.value = fightNumber++;
+        }
+    }
+
+    function deleteRow() {
+        const table = document.getElementById('predictionsTable');
+        if (table.rows.length > 2) {
+            table.deleteRow(-1);
+            fightNumber--;
+        }
+    }
+
+    function updateColor(select) {
+        const selectedValue = select.value;
+        const cell = select.parentElement;
+        cell.classList.remove("bet-on-meron", "bet-on-wala");
+
+        if (selectedValue === "meron") {
+            cell.classList.add("bet-on-meron");
+        } else if (selectedValue === "wala") {
+            cell.classList.add("bet-on-wala");
+        }
+    }
+
+    function updateProfitLoss(select) {
+        const row = select.closest('tr');
+        const betAmount = parseFloat(row.cells[2].getElementsByTagName('input')[0].value);
+        const profitLossCell = row.cells[4].getElementsByTagName('input')[0];
+
+        if (select.value === "win") {
+            const multiplier = (Math.random() * (1.9 - 1.8) + 1.8).toFixed(2);
+            const profit = (betAmount * multiplier - betAmount).toFixed(2);
+            profitLossCell.value = `₹${profit}`;
+        } else if (select.value === "lose") {
+            profitLossCell.value = `₹-${betAmount}`;
+        } else if (select.value === "draw") {
+            profitLossCell.value = `₹0`;
+        } else if (select.value === "cancelled") {
+            profitLossCell.value = `₹0`;
+        }
+    }
+
+    function calculateTotal() {
+        let total = 0;
+        const table = document.getElementById('predictionsTable');
+        for (let i = 1, row; row = table.rows[i]; i++) {
+            const profitLoss = parseFloat(row.cells[4].getElementsByTagName('input')[0].value.replace('₹', '')) || 0;
+            total += profitLoss;
+        }
+        document.getElementById('totalProfitLoss').innerText = `Total Profit/Loss: ₹${total.toFixed(2)}`;
+    }
+
+    addRow();
+</script>
+
+</body>
+</html>
